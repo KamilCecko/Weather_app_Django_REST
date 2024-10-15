@@ -1,0 +1,10 @@
+../.idea/
+venv/
+db.sqlite3
+.vscode/
+.DS_Store
+
+*.pyc
+*.bak
+*.swp
+*.log
