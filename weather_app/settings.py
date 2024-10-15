@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-from decouple import config
+
 from pathlib import Path
 import os
 
@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # SECRET_KEY = 'django-insecure-4%$-np_@90#qzq$7$0k21&khb%-q^5f6yas+^#d)*wy5son=_$'
-SECRET_KEY =config('SECRET_KEY')
+SECRET_KEY = "pass1234"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
