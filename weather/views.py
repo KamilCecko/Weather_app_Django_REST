@@ -1,4 +1,4 @@
-
+import os
 from rest_framework import status
 from .models import WeatherHistory
 import requests
@@ -6,11 +6,11 @@ import json
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
-from drf_yasg import openapi
 from .serializers import ForcastGeneratorSerializerRequest, HistorySerializerRequest, HistorySerializerResponse, ForcastGeneratorSerializerResponse
 
 
 URL = "https://api.openai.com/v1/chat/completions"
+
 
 @swagger_auto_schema(
     method='post',
@@ -20,9 +20,6 @@ URL = "https://api.openai.com/v1/chat/completions"
         400: 'Bad Request',
         500: 'Internal Server Error'
     },
-    manual_parameters=[
-        openapi.Parameter('Authorization', openapi.IN_HEADER, description="Bearer token for authentication. Example: 'Bearer OPENAI_API_KEY'", type=openapi.TYPE_STRING)
-    ]
 )
 @api_view(['POST'])
 def text_processing(request):
@@ -31,6 +28,7 @@ def text_processing(request):
         location = serializer.validated_data['location']
         date_from = serializer.validated_data['date_from']
         date_to = serializer.validated_data['date_to']
+        openai_api_key = serializer.validated_data['openai_api_key']
         style = 'Tabloid' if serializer.validated_data['style'] == 'B' else 'factual'
         language = 'Slovak' if serializer.validated_data['language'] == 'SK' else 'English'
 
@@ -45,7 +43,7 @@ def text_processing(request):
         '''
         headers = {
                'Content-Type': 'application/json',
-               'Authorization': f'Bearer '
+               'Authorization': f'Bearer {openai_api_key}'
            }
         data = {
                'model': 'gpt-3.5-turbo',
@@ -76,7 +74,8 @@ def text_processing(request):
         response_serializer = ForcastGeneratorSerializerResponse(data=generated_text)
         if response_serializer.is_valid():
             return Response(response_serializer.data, status=status.HTTP_200_OK)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 @swagger_auto_schema(
     method='post',
@@ -87,9 +86,6 @@ def text_processing(request):
         404: 'Not Found',
         500: 'Internal Server Error'
     },
-    manual_parameters=[
-        openapi.Parameter('Authorization', openapi.IN_HEADER, description="Bearer token for authorization", type=openapi.TYPE_STRING)
-    ]
 )
 @api_view(['POST'])
 def weather_history(request):

@@ -12,11 +12,12 @@ class ForcastGeneratorSerializerRequest(serializers.Serializer):
         ('ENG', 'English'),
     ]
 
-    location = serializers.CharField(max_length=20)
+    location = serializers.CharField(max_length=100)
     date_from = serializers.DateField()
     date_to = serializers.DateField()
     style = serializers.ChoiceField(choices=STYLE_CHOISES)
     language = serializers.ChoiceField(choices=LANGUAGE_CHOICES)
+    openai_api_key = serializers.CharField(max_length=255)
 
 
 class ForcastGeneratorSerializerResponse(serializers.Serializer):
@@ -35,4 +36,3 @@ class HistorySerializerResponse(serializers.Serializer):
     location = serializers.CharField(max_length=100)
     temperature = serializers.IntegerField()
     date = serializers.DateField()
-

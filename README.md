@@ -18,7 +18,7 @@ The task of this project is to design and implement a backend API for an applica
    - Users can query past weather forecasts based on the location and date range.
 
 3. **Deployment**:
-   - The application is deployed on the **AWS** cloud platform
+   - The application is deployed on the **AWS** cloud platform. The application is deployed on the AWS cloud platform. You can test the application using the IP address 54.93.253.162.
 
 ### API Implementation
 
@@ -41,10 +41,12 @@ The task of this project is to design and implement a backend API for an applica
   "location": "Košice",
   "date_from": "2024-10-16",
   "date_to": "2024-10-18",
-  "style": "B",  # 'B' for tabloid style, 'F' for factual
-  "language": "SK"  # 'SK' for Slovak, 'ENG' for English
+  "style": 'B' or 'F'
+  "language":'SK' or 'ENG'
 }
 ```
+*style :'B' is for Tabloid style while 'F' is for Factual style*
+
 
 **Response**:
 ```json
