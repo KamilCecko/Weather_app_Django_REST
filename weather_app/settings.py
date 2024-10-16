@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # SECRET_KEY = 'django-insecure-4%$-np_@90#qzq$7$0k21&khb%-q^5f6yas+^#d)*wy5son=_$'
-SECRET_KEY = "pass1234"
+SECRET_KEY ="pass1234"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -45,7 +45,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'drf_yasg',
     'weather',
+
 
 ]
 
@@ -79,6 +81,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'weather_app.wsgi.application'
 
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema'
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases

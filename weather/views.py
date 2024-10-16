@@ -1,64 +1,68 @@
-from datetime import datetime
-from rest_framework.decorators import api_view
-from .serializers import TextSerializer, HistorySerializerRequest, HistorySerializerResponse
-from rest_framework.response import Response
+
 from rest_framework import status
 from .models import WeatherHistory
 import requests
 import json
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
+from .serializers import ForcastGeneratorSerializerRequest, HistorySerializerRequest, HistorySerializerResponse, ForcastGeneratorSerializerResponse
 
 
+URL = "https://api.openai.com/v1/chat/completions"
 
+@swagger_auto_schema(
+    method='post',
+    request_body=ForcastGeneratorSerializerRequest,
+    responses={
+        200: ForcastGeneratorSerializerResponse,
+        400: 'Bad Request',
+        500: 'Internal Server Error'
+    },
+    manual_parameters=[
+        openapi.Parameter('Authorization', openapi.IN_HEADER, description="Bearer token for authentication. Example: 'Bearer OPENAI_API_KEY'", type=openapi.TYPE_STRING)
+    ]
+)
 @api_view(['POST'])
 def text_processing(request):
-    serializer_textu = TextSerializer(data=request.data)
-    if serializer_textu.is_valid():
-        location = serializer_textu.validated_data['location']
-        date = serializer_textu.validated_data['date']
-        style = serializer_textu.validated_data['style']
-        if style == 'B':
-            style = 'Tabloid style'
-        else:
-            style = 'factual'
-        language = serializer_textu.validated_data['language']
-        if language == 'SK':
-            language = 'Slovak'
-        else:
-            language = 'English'
-        # prompt = f''' Generate weather report for {date} for {location} in style {style} and in language {language_choises}.
-        # Generated Response should be in Json with keys:json_response and text_response.
-        # in json_response i want day as key in format YYYY-MM-DD and temperature in °C for that day as a value.
-        # in text_response i want generate text describing weater . the text should have a headline of up to 10 words,
-        #  perex up to 25 words and a body of at least 50 words
-        # '''
-        # headers = {
-        #        "Content-Type": "application/json",
-        #        "Authorization": f"Bearer {REMOVED}"
-        #    }
-        # data = {
-        #        "model": "gpt-3.5-turbo",
-        #        "messages": [{"role": "user", "content": prompt}],
-        #        "max_tokens": 500
-        #    }
-        # response = requests.post(URL, headers=headers, json=data)
-        # if response.status_code == 200:
-        #     generated_text = response.json()['choices'][0]['message']['content']['text_response']
-            # generated_json = response.json()['choices'][0]['message']['content']['json_response']
-        generated_text = {
-        "headline": "Bratislava: Počasie na týždeň vpred!",
-        "perex": "Zistite, čo nás čaká v Bratislave tento týždeň.",
-        "body": "Tento týždeň sa v Bratislave môžeme tešiť na rozmanité počasie. Od piatku 11. októbra budú teploty kolísať medzi 13 °C a 16 °C. Očakáva sa, že najteplejšie dni budú v piatok a nedeľu, kedy teploty dosiahnu príjemných 16 °C. Počas víkendu však môže pršať, takže nezabudnite na dáždnik! Na začiatku budúceho týždňa sa ochladí, pričom v pondelok očakávame len 13 °C. S prichádzajúcim chladom bude nutné si obliecť teplejšie vrstvy. Tento týždeň sa budú striedať oblačné a slnečné dni, takže si vychutnajte každú chvíľu vonku!"
-            }
-        generated_json = {
-                    "2024-10-11": 16,
-                    "2024-10-12": 14,
-                    "2024-10-13": 15,
-                    "2024-10-14": 13,
-                    "2024-10-15": 15,
-                    "2024-10-16": 14,
-                    "2024-10-17": 14,
-                }
-        # history_dict = json.loads(generated_json)
+    serializer = ForcastGeneratorSerializerRequest(data=request.data)
+    if serializer.is_valid():
+        location = serializer.validated_data['location']
+        date_from = serializer.validated_data['date_from']
+        date_to = serializer.validated_data['date_to']
+        style = 'Tabloid' if serializer.validated_data['style'] == 'B' else 'factual'
+        language = 'Slovak' if serializer.validated_data['language'] == 'SK' else 'English'
+
+        generated_text = {}
+        generated_json = {}
+
+        prompt = f''' Generate weather report for date between {date_from} and {date_to} for {location} in {style} style and in {language} language.
+        Generated Response should be in Json with keys:json_response and text_response.
+        in json_response i want day as key in format YYYY-MM-DD and temperature in celzius for that day as a value.
+        in text_response i want generate text describing weater. the text_response should have key headline with string value max 50 character,
+        key perex with string value max 100 characters and a key body with string value max 200 characters
+        '''
+        headers = {
+               'Content-Type': 'application/json',
+               'Authorization': f'Bearer '
+           }
+        data = {
+               'model': 'gpt-3.5-turbo',
+               'messages': [{'role': 'user', 'content': prompt}],
+               'max_tokens': 500
+           }
+        response = requests.post(URL, headers=headers, json=data)
+        if response.status_code == 200:
+            try:
+                json_response = json.loads(response.json()['choices'][0]['message']['content'])
+
+                generated_text = json_response.get('text_response')
+                generated_json = json_response.get('json_response')
+
+            except KeyError as error:
+                return Response(data='wrong ChatGTP response', status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
         object_to_create = []
         for date, temperature in generated_json.items():
             obj = WeatherHistory(
@@ -69,30 +73,36 @@ def text_processing(request):
             object_to_create.append(obj)
         if object_to_create:
             WeatherHistory.objects.bulk_create(object_to_create)
-        return Response(generated_text, status=status.HTTP_200_OK)
-    return Response(TextSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        response_serializer = ForcastGeneratorSerializerResponse(data=generated_text)
+        if response_serializer.is_valid():
+            return Response(response_serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-@api_view(['GET', 'POST'])
+@swagger_auto_schema(
+    method='post',
+    request_body=HistorySerializerRequest,
+    responses={
+        200: HistorySerializerResponse,
+        400: 'Bad Request',
+        404: 'Not Found',
+        500: 'Internal Server Error'
+    },
+    manual_parameters=[
+        openapi.Parameter('Authorization', openapi.IN_HEADER, description="Bearer token for authorization", type=openapi.TYPE_STRING)
+    ]
+)
+@api_view(['POST'])
 def weather_history(request):
-    if request.method == 'GET':
-        all_weather = WeatherHistory.objects.all()
-        serializer = HistorySerializerResponse(all_weather, many=True)
+    serializer = HistorySerializerRequest(data=request.data)
+    if serializer.is_valid():
+        location = serializer.validated_data.get('location')
+        date_from = serializer.validated_data.get('date_from')
+        date_to = serializer.validated_data.get('date_to')
+        filtered = WeatherHistory.objects.filter(
+            location__iexact=location,
+            date__range=[date_from, date_to],
+        )
+        serializer = HistorySerializerResponse(filtered, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    if request.method == 'POST':
-        serializer = HistorySerializerRequest(data=request.data)
-        if serializer.is_valid():
-            location = serializer.validated_data.get('location')
-            date_from = serializer.validated_data.get('date_from')
-            date_to = serializer.validated_data.get('date_to')
-            filtered = WeatherHistory.objects.filter(
-                location__iexact=location,
-                date__range=[date_from, date_to],
-            )
-            serializer = HistorySerializerResponse(filtered, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-# Successfully installed python-decouple-3.8
-# Domena
-# WARNING! Your password will be stored unencrypted in /root/.docker/config.json.
+    else:
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
