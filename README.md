@@ -93,3 +93,10 @@ The task of this project is to design and implement a backend API for an applica
   }
 ]
 ```
+### API Documentation
+
+**Endpoint**: /swagger/  
+- **Method**: GET  
+- **Description**: Access the Swagger UI to explore and interact with the API endpoints. This interface provides an interactive documentation, allowing you to test the API requests and view the responses directly.
+
+  
