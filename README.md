@@ -41,11 +41,12 @@ The task of this project is to design and implement a backend API for an applica
   "location": "Košice",
   "date_from": "2024-10-16",
   "date_to": "2024-10-18",
-  "style": 'B'  // 'B' for Tabloid, 'F' for Factual
-  "language":'SK' // 'SK' for Slovak, 'ENG' for English
+  "style": "B",
+  "language":"SK"
 }
 ```
-*style :'B' is for Tabloid style while 'F' is for Factual style*
+*style: Can be 'B' or 'F'. 'B' is for Tabloid style, while 'F' is for Factual style.*
+*language: Can be 'SK' or 'ENG'. 'SK' is for the Slovak language, while 'ENG' is for the English language.*
 
 
 **Response**:

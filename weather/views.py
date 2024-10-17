@@ -74,7 +74,7 @@ def text_processing(request):
         response_serializer = ForcastGeneratorSerializerResponse(data=generated_text)
         if response_serializer.is_valid():
             return Response(response_serializer.data, status=status.HTTP_200_OK)
-    # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @swagger_auto_schema(
