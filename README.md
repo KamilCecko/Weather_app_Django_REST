@@ -18,7 +18,7 @@ The task of this project is to design and implement a backend API for an applica
    - Users can query past weather forecasts based on the location and date range.
 
 3. **Deployment**:
-   - The application is deployed on the **AWS** cloud platform. The application is deployed on the AWS cloud platform 
+   - The application is deployed on the **AWS** cloud platform. 
 
 ### API Implementation
 
