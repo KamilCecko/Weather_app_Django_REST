@@ -1,7 +1,7 @@
 from django.urls import path
-from .views import text_processing, weather_history
+from .views import TextProcessor, SearchWeatherHistory
 
 urlpatterns = [
-    path("", text_processing, name="text_processing"),
-    path("history/", weather_history, name="weather_history")
+    path("", TextProcessor.as_view(), name="text_processing"),
+    path("history/", SearchWeatherHistory.as_view(), name="weather_history")
     ]

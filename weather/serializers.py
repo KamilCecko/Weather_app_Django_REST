@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from .models import WeatherHistory
 
 
 class ForcastGeneratorSerializerRequest(serializers.Serializer):
@@ -17,7 +16,6 @@ class ForcastGeneratorSerializerRequest(serializers.Serializer):
     date_to = serializers.DateField()
     style = serializers.ChoiceField(choices=STYLE_CHOISES)
     language = serializers.ChoiceField(choices=LANGUAGE_CHOICES)
-    openai_api_key = serializers.CharField(max_length=255)
 
 
 class ForcastGeneratorSerializerResponse(serializers.Serializer):
