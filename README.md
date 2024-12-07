@@ -18,7 +18,7 @@ The task of this project is to design and implement a backend API for an applica
    - Users can query past weather forecasts based on the location and date range.
 
 3. **Deployment**:
-   - The application is deployed on the **AWS** cloud platform. The application is deployed on the AWS cloud platform. You can test the application using the address http://18.198.3.85/.
+   - The application is deployed on the **AWS** cloud platform. The application is deployed on the AWS cloud platform 
 
 ### API Implementation
 
@@ -93,3 +93,10 @@ The task of this project is to design and implement a backend API for an applica
   }
 ]
 ```
+### API Documentation
+
+**Endpoint**: /swagger/  
+- **Method**: GET  
+- **Description**: Access the Swagger UI to explore and interact with the API endpoints. This interface provides an interactive documentation, allowing you to test the API requests and view the responses directly.
+
+  
