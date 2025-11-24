@@ -65,12 +65,8 @@ The task of this project is to design and implement a backend API for an applica
 - **Description**: Retrieves historical weather data for a given location and date range.
 
 **Request**:
-```json
-{
-  "location": "Košice",
-  "date_from": "2024-10-14",
-  "date_to": "2024-10-16"
-}
+```bash
+GET /weather/history/?location=Košice&date_from=2024-10-14&date_to=2024-10-16
 ```
 
 **Response**:
