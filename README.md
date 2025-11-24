@@ -61,7 +61,7 @@ The task of this project is to design and implement a backend API for an applica
 ### Historical Weather Data
 
 - **Endpoint**: /weather/history/
-- **Method**: POST
+- **Method**: GET
 - **Description**: Retrieves historical weather data for a given location and date range.
 
 **Request**:
